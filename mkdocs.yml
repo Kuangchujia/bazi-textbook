@@ -46,5 +46,5 @@ nav:
 extra:
   # 访问统计：填入其一即启用，两者均留空则不加载任何统计脚本。
   # goatcounter 填站点代码（如 jiayanyide），无 Cookie；ga4 填 G- 开头的测量 ID。
-  goatcounter: ""
+  goatcounter: "chujia"
   ga4: ""
