@@ -85,6 +85,7 @@ LESSONS = {
 EXTRA = {
     "exercises/": "教材十七课原有练习题 63 道，按课次编排，不附标准答案或解题过程，并标注对应教材和原题小节，供读者自学复习。",
     "exercises/exercises/": "十七课练习手册全文：按课次照录各课「练习」小节题干，未改字、未另编题，每题标注对应教材课次与原题小节。",
+    "contact/": "教材交流、内容勘误与课程咨询的联系渠道：邮箱与微信；另说明受理范围，不设购买与报名入口，不受理个案批命与排盘。",
 }
 
 TITLES = {
@@ -275,6 +276,7 @@ def on_post_build(config):
     L.append("- [关于嘉言一得](%sauthor/): 作者简介、研究方向与公开档案。" % base)
     L.append("- [版权与版本说明](%srights/): 版本记录、DOI 与分层授权。" % base)
     L.append("- [课程与教学服务](%scourses/): 教材、练习与附录免费公开；研修班另行成书。" % base)
+    L.append("- [联系与勘误](%scontact/): 教材交流、内容勘误与课程咨询的联系渠道；不设购买与报名入口。" % base)
     L.append("")
     L.append("授权分层，不统一：教材与练习为 CC BY-NC-SA 4.0，附录数据为 CC BY 4.0，自编脚本为 MIT。")
     L.append("")
@@ -363,6 +365,7 @@ def on_post_build(config):
         ("author/", "about", "关于嘉言一得"),
         ("rights/", "about", "版权与版本说明"),
         ("courses/", "about", "课程与教学服务"),
+        ("contact/", "about", "联系与勘误"),
     ):
         pages.append({
             "url": base + url,

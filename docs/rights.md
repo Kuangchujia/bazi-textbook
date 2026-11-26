@@ -86,4 +86,4 @@ v1.0.0 归档时的逐件 SHA256 基线存于仓库 `SHA256SUMS-v1.0.0.txt`；`S
 
 ## 勘误
 
-发现错字、引文出入或前后矛盾，可经 [GitHub 仓库](https://github.com/Kuangchujia/bazi-textbook/issues) 提出。勘误经确认后随版本更新处理，不删改正文原句；正文有改动即另立版本号，不在 v1.0.0 上就地覆盖。
+发现错字、引文出入或前后矛盾，可经 [GitHub 仓库](https://github.com/Kuangchujia/bazi-textbook/issues) 提出，也可按[联系与勘误](contact.md)所列的邮箱或微信告知。勘误经确认后随版本更新处理，不删改正文原句；正文有改动即另立版本号，不在 v1.0.0 上就地覆盖。
