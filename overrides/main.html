@@ -14,6 +14,16 @@
   {% set desc = page.meta.description if page.meta and page.meta.description else config.site_description %}
   {% set book_id = config.site_url + "#textbook" %}
   {% set person_id = config.site_url + "author/#person" %}
+  {% set og_title = config.site_name if page.is_homepage else (page.title ~ " · " ~ config.site_name) %}
+  <meta property="og:type" content="{% if page.is_homepage %}website{% else %}article{% endif %}">
+  <meta property="og:title" content="{{ og_title }}">
+  <meta property="og:description" content="{{ desc }}">
+  <meta property="og:url" content="{{ page_url }}">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:locale" content="zh_CN">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ og_title }}">
+  <meta name="twitter:description" content="{{ desc }}">
   <script type="application/ld+json">
 {% if page.is_homepage %}
 {

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://bazi-textbook.jiayanyide.com/sitemap.xml
