@@ -14,23 +14,23 @@ theme:
 nav:
   - 首页: index.md
   - 教材正文:
-      - 第1课: textbook/L01.md
-      - 第2课: textbook/L02.md
-      - 第3课: textbook/L03.md
-      - 第4课: textbook/L04.md
-      - 第5课: textbook/L05.md
-      - 第6课: textbook/L06.md
-      - 第7课: textbook/L07.md
-      - 第8课: textbook/L08.md
-      - 第9课: textbook/L09.md
-      - 第10课: textbook/L10.md
-      - 第11课: textbook/L11.md
-      - 第12课: textbook/L12.md
-      - 第13课: textbook/L13.md
-      - 第14课: textbook/L14.md
-      - 第15课: textbook/L15.md
-      - 第16课: textbook/L16.md
-      - 第17课: textbook/L17.md
+      - 第1课 · 概论: textbook/L01.md
+      - 第2课 · 阴阳五行: textbook/L02.md
+      - 第3课 · 天干及五合: textbook/L03.md
+      - 第4课 · 地支: textbook/L04.md
+      - 第5课 · 地支关系: textbook/L05.md
+      - 第6课 · 八字排法: textbook/L06.md
+      - 第7课 · 长生十二宫: textbook/L07.md
+      - 第8课 · 十神排法: textbook/L08.md
+      - 第9课 · 十神类象: textbook/L09.md
+      - 第10课 · 十神组合（一）: textbook/L10.md
+      - 第11课 · 十神组合（二）: textbook/L11.md
+      - 第12课 · 十神组合（三）: textbook/L12.md
+      - 第13课 · 十神实战: textbook/L13.md
+      - 第14课 · 旺衰抑扶: textbook/L14.md
+      - 第15课 · 旺衰的用法: textbook/L15.md
+      - 第16课 · 神煞: textbook/L16.md
+      - 第17课 · 大运流年: textbook/L17.md
   - 练习:
     - 说明: exercises/README.md
     - 题目: exercises/exercises.md

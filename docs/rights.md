@@ -40,7 +40,6 @@ description: 《四柱八字基础教材》v1.0.0 的版本记录、DOI 与分�
 |---|---|---|
 | 教材正文 | `docs/textbook/L01.md`—`L17.md` | CC BY-NC-SA-4.0 |
 | 练习题 | `docs/exercises/` | CC BY-NC-SA-4.0 |
-| 校勘另册 | 本版本不含独立校勘文件；后续形成时按同一许可 | CC BY-NC-SA-4.0 |
 | 附录数据 | `docs/appendix-data/*.csv` | CC BY-4.0 |
 | 自编脚本 | `scripts/` | MIT |
 
@@ -61,4 +60,4 @@ description: 《四柱八字基础教材》v1.0.0 的版本记录、DOI 与分�
 
 ## 勘误
 
-发现错字、引文出入或前后矛盾，可经 [GitHub 仓库](https://github.com/Kuangchujia/bazi-textbook/issues) 提出。勘误另册独立成文，不反向修改正文。
+发现错字、引文出入或前后矛盾，可经 [GitHub 仓库](https://github.com/Kuangchujia/bazi-textbook/issues) 提出。勘误经确认后随版本更新处理，不删改正文原句；正文有改动即另立版本号，不在 v1.0.0 上就地覆盖。
