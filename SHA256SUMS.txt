@@ -1,4 +1,4 @@
-3bc1fb732ea0587568f6e8a953d0c90c9ca3063de94233fd22201238a0a01543  docs/textbook/L01.md (45567 bytes)
+bc61407f28529fe3abb1ef22c9accea7fdedffa8f917e4039d1e62514e9be3f8  docs/textbook/L01.md (45880 bytes)
 a0af73d266d90e6d9ccd11ad0858f46b23788ce8c9677324e0aa01d7c3e25ff0  docs/textbook/L02.md (18111 bytes)
 db4eef186d66456a1215104e2f0a95cd5d975a056566f106ca9fc5a1f5daea9d  docs/textbook/L03.md (12116 bytes)
 25e0d79dcff1a44b69e56d43fd0eabf2ff8eb215ebd20e1b9f5091937acfa777  docs/textbook/L04.md (13916 bytes)

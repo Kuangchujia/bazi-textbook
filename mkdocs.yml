@@ -11,6 +11,10 @@ theme:
   features:
     - navigation.path
     - navigation.top
+# 折叠块用：admonition 提供容器语法，details 提供 ??? 可折叠变体。
+markdown_extensions:
+  - admonition
+  - pymdownx.details
 nav:
   - 首页: index.md
   - 教材正文:
