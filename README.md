@@ -2,7 +2,7 @@
 
 十七课教材原文、63 题无答案练习、结构化附录与构建脚本。在线阅读地址：https://bazi-textbook.jiayanyide.com/
 
-授权状态：教材与练习 CC BY-NC-SA 4.0，附录数据 CC BY 4.0，自编脚本 MIT（2026-11-26 生效）。详见 [RIGHTS.md](RIGHTS.md)。原文冻结与校验见 [SHA256SUMS.txt](SHA256SUMS.txt)。
+授权状态：教材与练习 CC BY-NC-SA 4.0，附录数据 CC BY 4.0，自编脚本 MIT（2026-11-26 生效）。详见 [RIGHTS.md](RIGHTS.md)。v1.0.0 冻结基线的逐件 SHA256 见 [SHA256SUMS-v1.0.0.txt](SHA256SUMS-v1.0.0.txt)，当前文件哈希见 [SHA256SUMS.txt](SHA256SUMS.txt)。
 
 归档 DOI：[10.5281/zenodo.24549949](https://doi.org/10.5281/zenodo.24549949)
 
