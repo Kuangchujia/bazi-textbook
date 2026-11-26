@@ -2,6 +2,13 @@
 
 {% block extrahead %}
   {{ super() }}
+  {% if config.extra.goatcounter %}
+  <script data-goatcounter="https://{{ config.extra.goatcounter }}.goatcounter.com/count"
+          async src="https://gc.zgo.at/count.js"></script>
+  {% elif config.extra.ga4 %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.ga4 }}"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','{{ config.extra.ga4 }}');</script>
+  {% endif %}
   {% if page %}
   {% set page_url = config.site_url + ('' if page.url == '.' else page.url) %}
   {% set desc = page.meta.description if page.meta and page.meta.description else config.site_description %}
