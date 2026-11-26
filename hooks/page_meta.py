@@ -1,34 +1,171 @@
-"""逐页 description 注入（不改教材正文）。
+"""逐页元数据注入（不改教材正文）。
 
-十七课正文与正文页文件受 SHA256SUMS.txt 冻结校验，不得写入 front matter；
-故此处按页面 URL 给出描述，构建时注入 page.meta，模板从 page.meta.description 读取。
+十七课正文与练习页受 SHA256SUMS.txt 冻结校验，不得写入 front matter；
+故此处按页面 URL 给出描述、主站对应页与相关词条，构建时注入 page.meta，
+模板从 page.meta 读取。正文文件零字节改动。
 """
 
-DESCRIPTIONS = {
-    "textbook/L01/": "八字由年、月、日、时四柱干支组成。本课介绍命与运的关系、周易与八字的源流、主要门派与典籍，并说明十七课的学习路线。",
-    "textbook/L02/": "阴阳学说、四象与五行学说是全书的地基。这一课讲五行的生克次序、四象的来路，以及「一体多面」为何要在不同维度下分别看。",
-    "textbook/L03/": "十天干的类象与属性、天干生克、天干与方位季节和人体部位的对应，以及天干五合的成合条件。理解天干，是读十神与格局的前一步。",
-    "textbook/L04/": "十二地支的五行与阴阳属性、与四季方位时辰的对应、四孟四正四库的分组、六十甲子的构成、地支藏干与地支生克。",
-    "textbook/L05/": "本课讲六合、六冲、六害、三合局、会局与三刑的构成条件及作用差别，帮助理解地支组合及其对命局结构的影响。",
-    "textbook/L06/": "干支纪年如何起算、纪月为何以节气换月而不按农历初一、纪日与纪时的推算方法，附完整排盘示例与大运排法。这一课把年月日时推成四柱干支，为后续命局分析建立排盘基础。",
-    "textbook/L07/": "长生十二宫的定义与十二个阶段，各阶段的力量对比，以及十天干在十二宫中的具体状态。用于衡量天干在某一地支上的实际力量。",
-    "textbook/L08/": "日干如何确定、五行生克如何转化为十神，以及十神之间的生克关系。十神是八字分析的基本语言，先掌握排法，再学习类象。",
-    "textbook/L09/": "正官、七杀、正偏财、印绶、食神的类象。同一个十神在不同位置、不同组合下含义会变，本课只讲基本象义，不急于下断语。",
-    "textbook/L10/": "禄、刃、月劫的概念，通根与透干的分别，八字分析的基本次序，四吉神与四凶神的划分。这一课建立组合分析的框架。",
-    "textbook/L11/": "食神、财星、正官、印绶四吉神的类象与宜忌，讲清同一本体在不同组合下结论为何不同，是十神配合的第一组。",
-    "textbook/L12/": "伤官、禄、刃、七杀等凶神的类象与宜忌，并说明凶神逆用的思路，以及制化得当与否对组合分析的影响。",
-    "textbook/L13/": "十神在学业、事业、婚姻三个领域的具体取用：看哪些十神、在哪个位置看、怎样与岁运合看。属应用性质的练习课。",
-    "textbook/L14/": "八字流派总览、自党与异党的划分、旺衰与强弱的区别、取用神的四大类型、得令得地得势的判据，以及用神忌神喜神仇神闲神的定义。",
-    "textbook/L15/": "旺衰判断的三大标准，身旺与身弱各自的判据与宜忌。旺衰不是给命局打分，而是决定取用方向。",
-    "textbook/L16/": "吉神、中性、凶神三类神煞，以及神煞运用的原则：以格局与旺衰为主，神煞为辅，不作单断依据。",
-    "textbook/L17/": "原局、大运、流年三者的关系，大运吉凶的判断，流年与大运如何合看，附岁运的具体用法示例。全课的收束。",
+import os
+
+GLOSSARY = "https://jiayanyide.com/bazi/glossary/"
+GLOSSARY_INDEX = "https://jiayanyide.com/bazi/glossary/terms/"
+MAIN_LESSON = "https://jiayanyide.com/bazi/basic/lesson-%02d/"
+
+# 词条：slug -> 显示名（主站词典实有页面）
+TERMS = {
+    "sizhu": "四柱",
+    "rizhu": "日主",
+    "yinyang": "阴阳",
+    "wuxing": "五行",
+    "tiangan": "天干",
+    "dizhi": "地支",
+    "canggan": "藏干",
+    "shishen": "十神",
+    "zhengguan": "正官",
+    "qisha": "七杀",
+    "zhengcai": "正财",
+    "piancai": "偏财",
+    "yongshen": "用神",
+    "geju": "格局",
+    "jishen": "吉神",
+}
+
+# 每课：description；主站课次；相关词条 slug
+LESSONS = {
+    "L01": ("八字由年、月、日、时四柱干支组成。本课介绍命与运的关系、周易与八字的源流、主要门派与典籍，并说明十七课的学习路线。",
+            1, ["sizhu", "rizhu"]),
+    "L02": ("阴阳学说、四象与五行学说是全书的地基。这一课讲五行的生克次序、四象的来路，以及「一体多面」为何要在不同维度下分别看。",
+            2, ["yinyang", "wuxing"]),
+    "L03": ("十天干的类象与属性、天干生克、天干与方位季节和人体部位的对应，以及天干五合的成合条件。理解天干，是读十神与格局的前一步。",
+            3, ["tiangan"]),
+    "L04": ("十二地支的五行与阴阳属性、与四季方位时辰的对应、四孟四正四库的分组、六十甲子的构成、地支藏干与地支生克。",
+            4, ["dizhi", "canggan"]),
+    "L05": ("本课讲六合、六冲、六害、三合局、会局与三刑的构成条件及作用差别，帮助理解地支组合及其对命局结构的影响。",
+            5, ["dizhi"]),
+    "L06": ("干支纪年如何起算、纪月为何以节气换月而不按农历初一、纪日与纪时的推算方法，附完整排盘示例与大运排法。这一课把年月日时推成四柱干支，为后续命局分析建立排盘基础。",
+            6, ["sizhu", "rizhu", "canggan"]),
+    "L07": ("长生十二宫的定义与十二个阶段，各阶段的力量对比，以及十天干在十二宫中的具体状态。用于衡量天干在某一地支上的实际力量。",
+            7, []),
+    "L08": ("日干如何确定、五行生克如何转化为十神，以及十神之间的生克关系。十神是八字分析的基本语言，先掌握排法，再学习类象。",
+            8, ["shishen", "rizhu"]),
+    "L09": ("正官、七杀、正偏财、印绶、食神的类象。同一个十神在不同位置、不同组合下含义会变，本课只讲基本象义，不急于下断语。",
+            9, ["shishen", "zhengguan", "qisha", "zhengcai", "piancai"]),
+    "L10": ("禄、刃、月劫的概念，通根与透干的分别，八字分析的基本次序，四吉神与四凶神的划分。这一课建立组合分析的框架。",
+            10, ["shishen", "zhengguan"]),
+    "L11": ("食神、财星、正官、印绶四吉神的类象与宜忌，讲清同一本体在不同组合下结论为何不同，是十神配合的第一组。",
+            11, ["zhengguan", "zhengcai", "piancai", "jishen"]),
+    "L12": ("伤官、禄、刃、七杀等凶神的类象与宜忌，并说明凶神逆用的思路，以及制化得当与否对组合分析的影响。",
+            12, ["qisha", "shishen"]),
+    "L13": ("十神在学业、事业、婚姻三个领域的具体取用：看哪些十神、在哪个位置看、怎样与岁运合看。属应用性质的练习课。",
+            13, ["shishen"]),
+    "L14": ("八字流派总览、自党与异党的划分、旺衰与强弱的区别、取用神的四大类型、得令得地得势的判据，以及用神忌神喜神仇神闲神的定义。",
+            14, ["yongshen", "geju"]),
+    "L15": ("旺衰判断的三大标准，身旺与身弱各自的判据与宜忌。旺衰不是给命局打分，而是决定取用方向。",
+            15, ["yongshen"]),
+    "L16": ("吉神、中性、凶神三类神煞，以及神煞运用的原则：以格局与旺衰为主，神煞为辅，不作单断依据。",
+            16, ["jishen"]),
+    "L17": ("原局、大运、流年三者的关系，大运吉凶的判断，流年与大运如何合看，附岁运的具体用法示例。全课的收束。",
+            17, []),
+}
+
+EXTRA = {
     "exercises/": "教材十七课原有练习题 63 道，按课次编排，不附标准答案或解题过程，并标注对应教材和原题小节，供读者自学复习。",
     "exercises/exercises/": "十七课练习手册全文：按课次照录各课「练习」小节题干，未改字、未另编题，每题标注对应教材课次与原题小节。",
 }
 
+TITLES = {
+    "L01": "概论", "L02": "阴阳五行", "L03": "天干及五合", "L04": "地支",
+    "L05": "地支关系", "L06": "八字排法", "L07": "长生十二宫", "L08": "十神排法",
+    "L09": "十神类象", "L10": "十神组合（一）", "L11": "十神组合（二）",
+    "L12": "十神组合（三）", "L13": "十神实战", "L14": "旺衰抑扶",
+    "L15": "旺衰的用法", "L16": "神煞", "L17": "大运流年",
+}
+
+
+def _build():
+    desc, main, terms, keys = {}, {}, {}, {}
+    for lid, (d, num, term_list) in LESSONS.items():
+        url = "textbook/%s/" % lid
+        desc[url] = d
+        main[url] = {
+            "num": num,
+            "label": "第%d课" % num,
+            "url": MAIN_LESSON % num,
+            "terms": [{"name": TERMS[s], "url": "%s%s/" % (GLOSSARY, s)} for s in term_list],
+            "index": GLOSSARY_INDEX,
+        }
+        keys[url] = [TERMS[s] for s in term_list]
+    desc.update(EXTRA)
+    return desc, main, keys
+
+
+DESCRIPTIONS, MAIN_SITE, KEYWORDS = _build()
+
 
 def on_page_context(context, page, config, nav):
-    desc = DESCRIPTIONS.get(page.url)
-    if desc and not page.meta.get("description"):
-        page.meta["description"] = desc
+    url = page.url
+    d = DESCRIPTIONS.get(url)
+    if d and not page.meta.get("description"):
+        page.meta["description"] = d
+    if url in MAIN_SITE:
+        page.meta["main_site"] = MAIN_SITE[url]
+        page.meta["keywords"] = "、".join(KEYWORDS.get(url, []))
     return context
+
+
+def on_post_build(config):
+    """生成 llms.txt：给大模型读的站点导读，与本文件描述同源。"""
+    base = config["site_url"]
+    L = []
+    L.append("# 四柱八字基础教材")
+    L.append("")
+    L.append("> 邝楚嘉（嘉言一得）著，基础班四篇十七课、12+万字，2026 年 11 月发布 v1.0.0，"
+             "DOI 10.5281/zenodo.24549949。教材原文、无答案练习与结构化附录在此免费公开阅读。")
+    L.append("")
+    L.append("本站是《四柱八字基础教材》的单一内容源。正文为作者自撰，逐课原文未删改。"
+             "内容属传统命理理论，书中的判断与推演是该体系内部的结论，不宣称已获现代科学确证，"
+             "也不构成吉凶占卜服务，亦不构成医学、法律或投资建议。引用请标注书名、作者、版本与 DOI。")
+    L.append("")
+    L.append("## 正文（十七课）")
+    L.append("")
+    for i in range(1, 18):
+        lid = "L%02d" % i
+        url = "textbook/%s/" % lid
+        L.append("- [第%d课 · %s](%s%s): %s" % (i, TITLES[lid], base, url, DESCRIPTIONS[url]))
+    L.append("")
+    L.append("## 练习")
+    L.append("")
+    L.append("- [练习说明](%sexercises/): %s" % (base, DESCRIPTIONS["exercises/"]))
+    L.append("- [练习题手册（无答案）](%sexercises/exercises/): %s" % (base, DESCRIPTIONS["exercises/exercises/"]))
+    L.append("")
+    L.append("## 附录数据")
+    L.append("")
+    L.append("- [六十甲子表 CSV](%sappendix-data/bazi-jiazi.csv): 六十甲子与纳音的对照数据。" % base)
+    L.append("- [十神查法 CSV](%sappendix-data/bazi-shishen.csv): 日干对十天干取十神的对照表。" % base)
+    L.append("- [长生十二宫 CSV](%sappendix-data/bazi-changsheng.csv): 十天干在十二地支的长生状态。" % base)
+    L.append("- [神煞查法 CSV](%sappendix-data/bazi-shensha.csv): 常用神煞的起法对照。" % base)
+    L.append("")
+    L.append("## 作者、版本与许可")
+    L.append("")
+    L.append("- [关于嘉言一得](%sauthor/): 作者简介、研究方向与公开档案。" % base)
+    L.append("- [版权与版本说明](%srights/): 版本记录、DOI 与分层授权。" % base)
+    L.append("- [课程与教学服务](%scourses/): 教材、练习与附录免费公开；研修班另行成书。" % base)
+    L.append("")
+    L.append("授权分层，不统一：教材与练习为 CC BY-NC-SA 4.0，附录数据为 CC BY 4.0，自编脚本为 MIT。")
+    L.append("")
+    L.append("## 相关站点")
+    L.append("")
+    L.append("- [术数网 jiayanyide.com](https://jiayanyide.com/): 同一作者的术数主站，"
+             "含十七课完整原文与例题、术语词典、专题研究。")
+    L.append("- [中国历法与历史天文 kuangchujia.com](https://kuangchujia.com/): 节气与岁首、干支纪日、"
+             "二十八宿宿度的考据与数据，与本站分属两套体系。")
+    L.append("- [潮俗网 chaoshanwiki.com](https://chaoshanwiki.com/): 潮汕民俗数字知识库，"
+             "与本站无内容交叠。")
+    L.append("")
+    L.append("## Optional")
+    L.append("")
+    L.append("- [全站页面清单 sitemap.xml](%ssitemap.xml)" % base)
+    L.append("- [源文件与版本记录](https://github.com/Kuangchujia/bazi-textbook)")
+    L.append("")
+    with open(os.path.join(config["site_dir"], "llms.txt"), "w", encoding="utf-8", newline="\n") as f:
+        f.write("\n".join(L))
