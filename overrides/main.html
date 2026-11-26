@@ -27,7 +27,7 @@
   {% else %}
   "author": {"@type": "Person", "name": "邝楚嘉", "alternateName": "嘉言一得"},
   {% endif %}
-  "description": {{ config.site_description | tojson }}
+  "description": {{ (page.meta.description if page.meta and page.meta.description else config.site_description) | tojson }}
 }
   </script>
   <script type="application/ld+json">

@@ -12,11 +12,13 @@
 | 发布日期 | 2026-11-26 |
 | DOI | [10.5281/zenodo.24549949](https://doi.org/10.5281/zenodo.24549949) |
 | 源文件与版本记录 | [github.com/Kuangchujia/bazi-textbook](https://github.com/Kuangchujia/bazi-textbook) |
-| 授权 | 教材与练习 CC BY-NC-SA 4.0；附录数据 CC BY 4.0；自编脚本 MIT |
+| 授权 | 分层授权：教材与练习 CC BY-NC-SA 4.0；附录数据 CC BY 4.0；自编脚本 MIT |
 
 引用格式：
 
 > Kuang, C. (2026). 四柱八字基础教材 (Version 1.0.0). Zenodo. https://doi.org/10.5281/zenodo.24549949
+
+版本记录、引用细则与各层许可的适用范围，见[版权与版本说明](rights.md)。
 
 ## 目录
 
@@ -26,8 +28,9 @@
 - [结构化附录·十神查法](appendix-data/bazi-shishen.csv)
 - [结构化附录·长生十二宫](appendix-data/bazi-changsheng.csv)
 - [结构化附录·神煞查法](appendix-data/bazi-shensha.csv)
-- [作者与教材说明](author.md)
-- [课程与研修](courses.md)
+- [关于嘉言一得](author.md)
+- [版权与版本说明](rights.md)
+- [课程与教学服务](courses.md)
 
 校勘另册尚在准备，暂未收录内容。
 

@@ -39,5 +39,6 @@ nav:
     - 十神查法: appendix-data/bazi-shishen.csv
     - 长生十二宫: appendix-data/bazi-changsheng.csv
     - 神煞查法: appendix-data/bazi-shensha.csv
-  - 作者与教材说明: author.md
-  - 课程与研修: courses.md
+  - 关于嘉言一得: author.md
+  - 版权与版本说明: rights.md
+  - 课程与教学服务: courses.md
