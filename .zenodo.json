@@ -1,0 +1,31 @@
+{
+  "title": "四柱八字基础教材",
+  "creators": [
+    {
+      "name": "Kuang, Chujia",
+      "orcid": "0009-0002-7650-833X"
+    }
+  ],
+  "description": "<p>本归档包含四柱八字基础教材、配套练习、附录数据及辅助脚本。不同组成部分采用不同授权协议：教材、练习及校勘资料采用 CC BY-NC-SA 4.0；附录数据采用 CC BY 4.0；自编脚本采用 MIT License。各部分具体权利范围以归档包内 RIGHTS.md 的分项说明为准。本记录不表示所有文件适用同一授权协议。</p><p>教材共十七课，另附无答案练习、六十甲子、十神、长生十二宫、神煞四份结构化数据与配套脚本。在线阅读：https://bazi-textbook.jiayanyide.com/ 。</p>",
+  "keywords": [
+    "四柱八字",
+    "命理学",
+    "Bazi",
+    "Four Pillars of Destiny",
+    "教材",
+    "Chinese calendrics"
+  ],
+  "upload_type": "publication",
+  "publication_type": "book",
+  "version": "1.0.0",
+  "language": "zh",
+  "access_right": "open",
+  "notes": "本归档采用分层授权：教材、练习及校勘资料采用 CC BY-NC-SA 4.0；附录数据采用 CC BY 4.0；自编脚本采用 MIT。各部分权利范围以包内 RIGHTS.md 为准。",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/Kuangchujia/bazi-textbook",
+      "relation": "isSupplementedBy",
+      "scheme": "url"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "如使用本教材，请按下列信息引用。"
+title: 四柱八字基础教材
+type: book
+version: 1.0.0
+date-released: 2026-11-26
+authors:
+  - family-names: Kuang
+    given-names: Chujia
+    orcid: https://orcid.org/0009-0002-7650-833X
+repository-code: https://github.com/Kuangchujia/bazi-textbook
+url: https://bazi-textbook.jiayanyide.com/
+abstract: "四柱八字基础教材十七课原文、配套练习与附录数据。教材、练习及校勘资料采用 CC BY-NC-SA 4.0，附录数据采用 CC BY 4.0，自编脚本采用 MIT；各部分权利范围以包内 RIGHTS.md 为准。"
