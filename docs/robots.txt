@@ -1,4 +1,22 @@
+# 四柱八字基础教材 · 抓取说明
+# 正文授权见 https://bazi-textbook.jiayanyide.com/rights/（教材 CC BY-NC-SA 4.0，附录数据 CC BY 4.0）
+
 User-agent: *
 Allow: /
+
+# 生成式搜索的检索爬虫：抓取用于「给用户返回答案与出处」，不用于模型训练。
+# 这一类是本教材希望被引用的一类，单独列明。
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# 说明：GPTBot、ClaudeBot、CCBot、Google-Extended 属训练用途，仍按上方的
+# User-agent: * 处理（允许抓取）；其使用范围受 CC BY-NC-SA 4.0 约束，
+# 不得用于商业用途，转载与再分发须署名并保留来源链接。
 
 Sitemap: https://bazi-textbook.jiayanyide.com/sitemap.xml

@@ -6,9 +6,20 @@ page.meta 读取；正文文件的字节只承载教材原文与编者导读，�
 
 v1.0.0 的逐件 SHA256 基线存 SHA256SUMS-v1.0.0.txt（对应 Zenodo 归档版本）；
 SHA256SUMS.txt 记录当前文件的哈希。
+
+另在此生成三个机器可读文件：llms.txt（站点导读）、llms-full.txt（全书纯文本）、
+index.json（结构化索引）。三者的标题与描述与本文件的 LESSONS／EXTRA 同源，
+改描述只需改一处。
 """
 
+import json
 import os
+import re
+import subprocess
+
+VERSION = "1.0.0"
+PUBLISHED = "2026-11-26"          # v1.0.0 发布日；页面最后修订日另按 git 记录取值
+DOI = "https://doi.org/10.5281/zenodo.24549949"
 
 GLOSSARY = "https://jiayanyide.com/bazi/glossary/"
 GLOSSARY_INDEX = "https://jiayanyide.com/bazi/glossary/terms/"
@@ -84,9 +95,24 @@ TITLES = {
     "L15": "旺衰的用法", "L16": "神煞", "L17": "大运流年",
 }
 
+# 四篇的分界与篇名，取自各课第二行（第一篇 · 入门篇 …）。
+PARTS = [
+    ("第一篇 入门篇", 1, 5),
+    ("第二篇 操作篇", 6, 7),
+    ("第三篇 十神篇", 8, 12),
+    ("第四篇 实战篇", 13, 17),
+]
+
+
+def _part_of(num):
+    for name, lo, hi in PARTS:
+        if lo <= num <= hi:
+            return name
+    return ""
+
 
 def _build():
-    desc, main, terms, keys = {}, {}, {}, {}
+    desc, main, keys = {}, {}, {}
     for lid, (d, num, term_list) in LESSONS.items():
         url = "textbook/%s/" % lid
         desc[url] = d
@@ -105,6 +131,49 @@ def _build():
 DESCRIPTIONS, MAIN_SITE, KEYWORDS = _build()
 
 
+def _git_date(path):
+    """取该文件最后一次提交的日期（YYYY-MM-DD）。取不到就回落发布日。"""
+    try:
+        out = subprocess.run(
+            ["git", "log", "-1", "--format=%cs", "--", path],
+            cwd=os.path.dirname(os.path.abspath(__file__)),
+            capture_output=True, text=True, timeout=5,
+        )
+        d = out.stdout.strip()
+        if re.match(r"^\d{4}-\d{2}-\d{2}$", d):
+            return d
+    except Exception:
+        pass
+    return PUBLISHED
+
+
+def _word_count(text):
+    """中文字数口径：汉字逐字计，连续拉丁字母／数字算一个词。"""
+    han = len(re.findall(r"[\u4e00-\u9fff]", text))
+    latin = len(re.findall(r"[A-Za-z0-9]+", text))
+    return han + latin
+
+
+def on_config(config):
+    """把全书的章节清单与版本信息挂到 config.extra，模板与 JSON-LD 共用。"""
+    base = config["site_url"]
+    chapters = []
+    for i in range(1, 18):
+        lid = "L%02d" % i
+        chapters.append({
+            "num": i,
+            "title": "第%d课 %s" % (i, TITLES[lid]),
+            "url": "%stextbook/%s/" % (base, lid),
+            "part": _part_of(i),
+            "description": DESCRIPTIONS["textbook/%s/" % lid],
+        })
+    config["extra"]["chapters"] = chapters
+    config["extra"]["book_version"] = VERSION
+    config["extra"]["book_published"] = PUBLISHED
+    config["extra"]["book_doi"] = DOI
+    return config
+
+
 def on_page_context(context, page, config, nav):
     url = page.url
     d = DESCRIPTIONS.get(url)
@@ -113,12 +182,60 @@ def on_page_context(context, page, config, nav):
     if url in MAIN_SITE:
         page.meta["main_site"] = MAIN_SITE[url]
         page.meta["keywords"] = "、".join(KEYWORDS.get(url, []))
+        num = MAIN_SITE[url]["num"]
+        page.meta["lesson_no"] = num
+        page.meta["section"] = _part_of(num)
+    # 字数与修订日：JSON-LD 的 wordCount／dateModified 与页脚可见日期共用。
+    page.meta["word_count"] = _word_count(page.markdown or "")
+    page.meta["revised"] = _git_date(page.file.abs_src_path)
     return context
 
 
+# ── 机器可读文件 ────────────────────────────────────────────────────
+
+def _md_to_text(md):
+    """把教材 Markdown 折成可读纯文本，供 llms-full.txt 使用。"""
+    lines = []
+    for raw in md.split("\n"):
+        s = raw.rstrip()
+        if not s:
+            lines.append("")
+            continue
+        if s.startswith("基础教材 ·"):          # 页眉行，不是内容
+            continue
+        if s.startswith("???"):                  # 折叠块标题保留为小标题
+            m = re.search(r'"(.*?)"', s)
+            if m:
+                lines.append("【%s】" % m.group(1))
+            continue
+        s = re.sub(r"^>\s?", "", s)              # 引用符号
+        s = re.sub(r"^#{1,6}\s*", "", s)         # 标题井号
+        s = re.sub(r"\*\*(.+?)\*\*", r"\1", s)   # 粗体
+        s = re.sub(r"`([^`]*)`", r"\1", s)       # 行内代码
+        s = re.sub(r"^\|[\s:\-|]+\|$", "", s)    # 表格分隔行
+        if s.startswith("|") and s.endswith("|"):
+            s = " ｜ ".join(x.strip() for x in s.strip("|").split("|"))
+        s = re.sub(r"^\s*[-*]\s+", "· ", s)      # 列表
+        s = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", s)
+        s = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", s)
+        lines.append(s)
+    text = "\n".join(lines)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _write(path, content):
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
+        f.write(content)
+
+
 def on_post_build(config):
-    """生成 llms.txt：给大模型读的站点导读，与本文件描述同源。"""
+    """生成 llms.txt、llms-full.txt 与 index.json。"""
     base = config["site_url"]
+    site_dir = config["site_dir"]
+    docs_dir = config["docs_dir"]
+
+    # 一 · llms.txt：站点导读（llmstxt.org 的 H1 + 摘要 + 分节链接）
     L = []
     L.append("# 四柱八字基础教材")
     L.append("")
@@ -167,8 +284,95 @@ def on_post_build(config):
     L.append("")
     L.append("## Optional")
     L.append("")
+    L.append("- [全书纯文本 llms-full.txt](%sllms-full.txt): 十七课正文与练习的纯文本，供整本检索或语料使用。" % base)
+    L.append("- [结构化索引 index.json](%sindex.json): 课次、篇名、描述、关键词与字数的机读清单。" % base)
     L.append("- [全站页面清单 sitemap.xml](%ssitemap.xml)" % base)
     L.append("- [源文件与版本记录](https://github.com/Kuangchujia/bazi-textbook)")
     L.append("")
-    with open(os.path.join(config["site_dir"], "llms.txt"), "w", encoding="utf-8", newline="\n") as f:
-        f.write("\n".join(L))
+    _write(os.path.join(site_dir, "llms.txt"), "\n".join(L))
+
+    # 二 · llms-full.txt：全书纯文本
+    SEP = "=" * 60
+    F = []
+    F.append("四柱八字基础教材（v%s，%s）" % (VERSION, PUBLISHED))
+    F.append("作者：邝楚嘉（嘉言一得）　DOI：%s" % DOI)
+    F.append("来源：%s" % base)
+    F.append("授权：教材与练习 CC BY-NC-SA 4.0；附录数据 CC BY 4.0。引用请标注书名、作者、版本与 DOI。")
+    F.append("说明：本文件为教材正文的纯文本汇编，供检索与语料使用；正式阅读请回到上述网址。")
+    F.append("")
+    for i in range(1, 18):
+        lid = "L%02d" % i
+        path = os.path.join(docs_dir, "textbook", "%s.md" % lid)
+        with open(path, encoding="utf-8") as f:
+            md = f.read()
+        F.append(SEP)
+        F.append("第%d课　%s（%s）" % (i, TITLES[lid], _part_of(i)))
+        F.append("网址：%stextbook/%s/" % (base, lid))
+        F.append(SEP)
+        F.append("")
+        F.append(_md_to_text(md))
+        F.append("")
+    for name, title in (("exercises/exercises.md", "练习题手册（无答案）"),):
+        path = os.path.join(docs_dir, name)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                F.append(SEP)
+                F.append(title)
+                F.append("网址：%sexercises/exercises/" % base)
+                F.append(SEP)
+                F.append("")
+                F.append(_md_to_text(f.read()))
+                F.append("")
+    _write(os.path.join(site_dir, "llms-full.txt"), "\n".join(F))
+
+    # 三 · index.json：结构化索引
+    pages = []
+    for i in range(1, 18):
+        lid = "L%02d" % i
+        url = "textbook/%s/" % lid
+        path = os.path.join(docs_dir, "textbook", "%s.md" % lid)
+        with open(path, encoding="utf-8") as f:
+            words = _word_count(f.read())
+        pages.append({
+            "url": base + url,
+            "type": "lesson",
+            "lesson": i,
+            "part": _part_of(i),
+            "title": "第%d课 %s" % (i, TITLES[lid]),
+            "description": DESCRIPTIONS[url],
+            "keywords": KEYWORDS.get(url, []),
+            "mainSite": MAIN_LESSON % i,
+            "words": words,
+        })
+    pages.insert(0, {
+        "url": base,
+        "type": "home",
+        "title": "四柱八字基础教材",
+        "description": DESCRIPTIONS.get("", "四篇十七课、12+万字的四柱八字基础教材，含无答案练习与结构化附录。"),
+    })
+    for url, kind, title in (
+        ("exercises/", "exercises", "练习说明"),
+        ("exercises/exercises/", "exercises", "练习题手册（无答案）"),
+        ("author/", "about", "关于嘉言一得"),
+        ("rights/", "about", "版权与版本说明"),
+        ("courses/", "about", "课程与教学服务"),
+    ):
+        pages.append({
+            "url": base + url,
+            "type": kind,
+            "title": title,
+            "description": DESCRIPTIONS.get(url, ""),
+        })
+    index = {
+        "site": base,
+        "name": "四柱八字基础教材",
+        "version": VERSION,
+        "published": PUBLISHED,
+        "author": {"name": "邝楚嘉", "alternateName": "嘉言一得"},
+        "license": "CC BY-NC-SA 4.0（教材与练习）；CC BY 4.0（附录数据）",
+        "doi": DOI,
+        "chapters": config["extra"]["chapters"],
+        "pages": pages,
+    }
+    _write(os.path.join(site_dir, "index.json"),
+           json.dumps(index, ensure_ascii=False, indent=2))

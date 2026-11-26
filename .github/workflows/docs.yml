@@ -18,6 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # 需要完整历史：页面「最后修订」取该文件最后一次提交的日期。
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

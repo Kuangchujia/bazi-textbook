@@ -9,12 +9,35 @@ theme:
   language: zh
   custom_dir: overrides
   features:
-    - navigation.path
-    - navigation.top
+    - navigation.path       # 面包屑
+    - navigation.top        # 回到顶部
+    - navigation.footer     # 页脚上一课／下一课
+    - navigation.tracking   # 地址栏跟随锚点
+    - toc.follow            # 目录跟随滚动
+    - search.suggest        # 搜索联想
+    - search.highlight      # 搜索命中高亮
+  # 深色模式：跟随系统，可手动切换。
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: 切换到深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: 切换到浅色模式
+extra_css:
+  - stylesheets/extra.css
 # 折叠块用：admonition 提供容器语法，details 提供 ??? 可折叠变体。
 markdown_extensions:
   - admonition
   - pymdownx.details
+  # 目录只到三级：L01 这类长课四级以下太碎，反而不好找。
+  - toc:
+      toc_depth: 3
+      permalink: false
 nav:
   - 首页: index.md
   - 教材正文:

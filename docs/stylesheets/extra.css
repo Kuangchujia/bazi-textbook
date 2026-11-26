@@ -1,0 +1,140 @@
+/* 教材站版式补丁
+ *
+ * 只做三件事：中文长文阅读的呼吸感、宽表格的可读性、阅读进度。
+ * 不换肤、不改 Material 的结构色，深色模式沿用主题自带的 slate 方案。
+ */
+
+/* ── 一、中文正文 ─────────────────────────────────────────────── */
+
+/* Material 默认 .8rem（16px）／行高 1.6，西文合适，中文十二万字偏紧。 */
+.md-typeset {
+  font-size: 0.85rem;   /* 17px */
+  line-height: 1.95;
+}
+
+.md-typeset p,
+.md-typeset li {
+  line-height: 1.95;
+}
+
+.md-typeset p {
+  margin: 0 0 1.05em;
+}
+
+/* 长课靠标题分段，段前留白比字号更能减轻压迫感。 */
+.md-typeset h2 {
+  margin-top: 2.1em;
+}
+
+.md-typeset h3 {
+  margin-top: 1.6em;
+  margin-bottom: 0.6em;
+}
+
+/* 引用块（经典出处、邝楚嘉按、编者按）行距与正文齐平，不要挤成一团。 */
+.md-typeset blockquote {
+  line-height: 1.9;
+}
+
+.md-typeset blockquote > p:last-child {
+  margin-bottom: 0;
+}
+
+/* 折叠块标题与正文的间距，展开后不至于贴边。 */
+.md-typeset details > summary {
+  line-height: 1.7;
+}
+
+/* ── 二、宽表格 ───────────────────────────────────────────────── */
+
+/* 主题不会给裸 table 套滚动容器；手机上六列的查法表会把整页撑宽。
+ * display:block 让表格自成滚动区，单元格仍按 table 排版。 */
+.md-typeset table:not([class]) {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.md-typeset table:not([class])::-webkit-scrollbar {
+  height: 6px;
+}
+
+.md-typeset table:not([class])::-webkit-scrollbar-thumb {
+  background: var(--md-default-fg-color--lighter);
+  border-radius: 3px;
+}
+
+/* ── 三、页脚 ─────────────────────────────────────────────────── */
+
+/* 开了「上一课／下一课」后，主题会在页脚铺一条接近纯黑的色带；
+ * 本站是纸白底，色带压在上面太重，改成与正文同底、只用细线分隔。 */
+.md-footer {
+  background-color: var(--md-default-bg-color);
+  color: var(--md-default-fg-color--light);
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-footer__inner {
+  padding: 0.6rem 0;
+}
+
+.md-footer__link {
+  opacity: 1;
+}
+
+.md-footer__title,
+.md-footer__direction {
+  color: var(--md-default-fg-color--light);
+}
+
+.md-footer__title {
+  font-size: 0.8rem;
+}
+
+.md-footer__button {
+  color: var(--md-default-fg-color--lighter);
+}
+
+.md-footer-meta {
+  background-color: transparent;
+  color: var(--md-default-fg-color--light);
+}
+
+.md-footer-meta__inner {
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-copyright {
+  color: var(--md-default-fg-color--light);
+}
+
+.md-copyright__highlight {
+  color: var(--md-default-fg-color);
+}
+
+/* ── 四、阅读进度 ─────────────────────────────────────────────── */
+
+/* 用滚动驱动动画（Chrome 115+）。浏览器不支持时 timeline 不生效，
+ * 横条停在 scaleX(0)，等于不存在，不会留下一条空线。 */
+@media (prefers-reduced-motion: no-preference) {
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 2px;
+    background: var(--md-accent-fg-color);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    z-index: 12;
+    pointer-events: none;
+    animation: kcj-scroll-progress linear;
+    animation-timeline: scroll(root block);
+  }
+
+  @keyframes kcj-scroll-progress {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+}
