@@ -1,9 +1,16 @@
 site_name: 四柱八字基础教材
 site_url: https://bazi-textbook.jiayanyide.com/
+site_description: 邝楚嘉（嘉言一得）四柱八字基础教材，四篇十七课、十二万字，含无答案练习与结构化附录。
+site_author: 邝楚嘉（嘉言一得）
 docs_dir: docs
+copyright: 教材与练习 CC BY-NC-SA 4.0 · 附录数据 CC BY 4.0 · 自编脚本 MIT
 theme:
   name: material
   language: zh
+  custom_dir: overrides
+  features:
+    - navigation.path
+    - navigation.top
 nav:
   - 首页: index.md
   - 教材正文:
@@ -32,3 +39,5 @@ nav:
     - 十神查法: appendix-data/bazi-shishen.csv
     - 长生十二宫: appendix-data/bazi-changsheng.csv
     - 神煞查法: appendix-data/bazi-shensha.csv
+  - 作者与教材说明: author.md
+  - 课程与研修: courses.md
