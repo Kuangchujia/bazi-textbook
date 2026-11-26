@@ -98,10 +98,9 @@ def main():
               'scripts', '.github/workflows']:
         os.makedirs(os.path.join(DST, p), exist_ok=True)
 
-    # 教材正文：逐字节复制并比对冻结件
-    # 2026-11-26 修订：第 3、4、9、10 课「优化者」署名统一为「邝楚嘉（嘉言一得）」。
-    # 冻结件保持原样不回写，此处按白名单校验：
-    # 只有「优化者」这一行的差异允许存在，其它任何字节变动仍然报警。
+    # 教材正文：逐字节复制并比对冻结件；冻结件保持原样，不回写。
+    # 少数课文与冻结件存在既定差异，按白名单放行：差异仅限「优化者」一行，
+    # 其它任何字节变动仍然报警。
     APPROVED_SIGN_EDITS = {3: '邝楚嘉（嘉言一得）', 4: '邝楚嘉（嘉言一得）',
                            9: '邝楚嘉（嘉言一得）', 10: '邝楚嘉（嘉言一得）'}
     sums = []
@@ -117,8 +116,8 @@ def main():
             import re as _re
             norm = lambda t: _re.sub(r'优化者 ：.*?(?= 优化说明|\r?\n|$)', '优化者 ：<SIGN>',
                                      t.decode('utf-8'))
-            assert norm(b) == norm(fb), 'L%02d 除署名外仍有改动，停止' % no
-            assert sign in b.decode('utf-8'), 'L%02d 未见新署名' % no
+            assert norm(b) == norm(fb), 'L%02d 白名单外仍有改动，停止' % no
+            assert sign in b.decode('utf-8'), 'L%02d 未见既定差异行' % no
         open(dst, 'wb').write(b)
         assert open(dst, 'rb').read() == b
         sums.append((hashlib.sha256(b).hexdigest(), 'docs/textbook/L%02d.md' % no, len(b)))
