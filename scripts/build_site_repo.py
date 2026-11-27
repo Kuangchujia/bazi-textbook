@@ -99,10 +99,21 @@ def main():
         os.makedirs(os.path.join(DST, p), exist_ok=True)
 
     # 教材正文：逐字节复制并比对冻结件；冻结件保持原样，不回写。
-    # 少数课文与冻结件存在既定差异，按白名单放行：差异仅限「优化者」一行，
-    # 其它任何字节变动仍然报警。
-    APPROVED_SIGN_EDITS = {3: '邝楚嘉（嘉言一得）', 4: '邝楚嘉（嘉言一得）',
-                           9: '邝楚嘉（嘉言一得）', 10: '邝楚嘉（嘉言一得）'}
+    # 5 课正文之外原有一段「笔记整理自／优化日期／优化者／优化说明」附记，第 9 课首段另有一句
+    # 来源说明，已按作者决定整段删去——附记与来源说明都不属正文论断。归一化后仍须与冻结件逐字
+    # 相同，其它任何字节变动照样报警。
+    APPROVED_CLEANUPS = {3, 4, 7, 9, 10}
+
+    def _norm(t):
+        t = t.decode('utf-8')
+        import re as _re
+        t = _re.sub(r'(?m)^笔记整理自.*$\n?', '', t)
+        t = t.replace(
+            '以下八个十神逐维展开。原作：徐超《十神类象》xlsx源表，经邝楚嘉校本重新整理为Markdown。',
+            '以下八个十神逐维展开。')
+        t = _re.sub(r'优化者 ：.*?(?= 优化说明|\r?\n|$)', '优化者 ：<SIGN>', t)
+        return _re.sub(r'\n{3,}', '\n\n', t)
+
     sums = []
     for pid, no, title in LESSONS:
         src = os.path.join(SRC, 'lessons', 'lesson-%02d.md' % no)
@@ -111,13 +122,8 @@ def main():
         b = open(src, 'rb').read()
         fb = open(frozen, 'rb').read()
         if b != fb:
-            assert no in APPROVED_SIGN_EDITS, '原文与冻结件不一致 L%02d' % no
-            sign = APPROVED_SIGN_EDITS[no]
-            import re as _re
-            norm = lambda t: _re.sub(r'优化者 ：.*?(?= 优化说明|\r?\n|$)', '优化者 ：<SIGN>',
-                                     t.decode('utf-8'))
-            assert norm(b) == norm(fb), 'L%02d 白名单外仍有改动，停止' % no
-            assert sign in b.decode('utf-8'), 'L%02d 未见既定差异行' % no
+            assert no in APPROVED_CLEANUPS, '原文与冻结件不一致 L%02d' % no
+            assert _norm(b) == _norm(fb), 'L%02d 白名单外仍有改动，停止' % no
         open(dst, 'wb').write(b)
         assert open(dst, 'rb').read() == b
         sums.append((hashlib.sha256(b).hexdigest(), 'docs/textbook/L%02d.md' % no, len(b)))
