@@ -82,10 +82,17 @@ LESSONS = {
             17, []),
 }
 
+# 一体多面的定义句。页面首屏、llms.txt、JSON-LD 的 DefinedTerm 三处逐字一致，
+# 要改只改这一处，不要分别改三处文字。
+YITI_DUOMIAN = ("一体多面，是指同一种太极之气因动静不同而分阴阳；"
+                "放到具体命局中，其轻重与指向会随观察维度而改变。")
+
 EXTRA = {
     "exercises/": "教材十七课原有练习题 63 道，按课次编排，不附标准答案或解题过程，并标注对应教材和原题小节，供读者自学复习。",
     "exercises/exercises/": "十七课练习手册全文：按课次照录各课「练习」小节题干，未改字、未另编题，每题标注对应教材课次与原题小节。",
     "contact/": "教材交流、内容勘误与课程咨询的联系渠道：邮箱与微信；另说明受理范围，不设购买与报名入口，不受理个案批命与排盘。",
+    "method/": YITI_DUOMIAN + "附定维度、看力量、观组合三步次序与原文出处。",
+    "notes/": "教材十七课中的邝楚嘉按语，按课次汇总，附导读与原文位置；点条目回到正文。",
 }
 
 TITLES = {
@@ -155,6 +162,41 @@ def _word_count(text):
     return han + latin
 
 
+_NOTE_ROW = re.compile(
+    r"^\|\s*\[([^\]]+)\]\(([^)]+)\)\s*\|\s*(.+?)\s*\|\s*$")
+_ANCHOR_NUM = re.compile(r"#an-(\d+)$")
+
+
+def _notes_items(md, base):
+    """从按语索引页的表格里取条目，供 JSON-LD 的 ItemList 使用。
+
+    直接解析页面本身，索引改一条，机器可读那份同步改，不会两边对不上。
+    """
+    items = []
+    for line in md.split("\n"):
+        m = _NOTE_ROW.match(line.strip())
+        if not m:
+            continue
+        section, href, title = m.group(1), m.group(2), m.group(3)
+        # 页内写的是 textbook/L01.md#an-01，机读链接要的是部署后的目录地址。
+        href = href.replace(".md#", "/#")
+        url = base + href[3:] if href.startswith("../") else base + href.lstrip("/")
+        a = _ANCHOR_NUM.search(href)
+        lm = re.search(r"(L\d+)/?#an-", href)
+        lid = lm.group(1) if lm else ""
+        num = int(lid[1:]) if lid else 0
+        items.append({
+            "position": len(items) + 1,
+            "name": title,
+            "section": section,
+            "url": url,
+            "anchor": "an-%s" % a.group(1) if a else "",
+            "lesson": lid,
+            "lessonNo": num,
+        })
+    return items
+
+
 def on_config(config):
     """把全书的章节清单与版本信息挂到 config.extra，模板与 JSON-LD 共用。"""
     base = config["site_url"]
@@ -189,6 +231,10 @@ def on_page_context(context, page, config, nav):
     # 字数与修订日：JSON-LD 的 wordCount／dateModified 与页脚可见日期共用。
     page.meta["word_count"] = _word_count(page.markdown or "")
     page.meta["revised"] = _git_date(page.file.abs_src_path)
+    if url == "notes/":
+        page.meta["notes_items"] = _notes_items(page.markdown or "", config["site_url"])
+    if url == "method/":
+        page.meta["definition"] = YITI_DUOMIAN
     return context
 
 
@@ -267,6 +313,11 @@ def on_post_build(config):
     L.append("- [十神查法 CSV](%sappendix-data/bazi-shishen.csv): 日干对十天干取十神的对照表。" % base)
     L.append("- [长生十二宫 CSV](%sappendix-data/bazi-changsheng.csv): 十天干在十二地支的长生状态。" % base)
     L.append("- [神煞查法 CSV](%sappendix-data/bazi-shensha.csv): 常用神煞的起法对照。" % base)
+    L.append("")
+    L.append("## 方法论")
+    L.append("")
+    L.append("- [一体多面](%smethod/): %s三步次序为定维度、看力量、观组合。" % (base, YITI_DUOMIAN))
+    L.append("- [邝楚嘉按语索引](%snotes/): 十七课里作者的按语，按课次汇总，逐条回原文。" % base)
     L.append("")
     L.append("## 作者、版本与许可")
     L.append("")
@@ -361,6 +412,8 @@ def on_post_build(config):
         ("author/", "about", "关于嘉言一得"),
         ("rights/", "about", "版权与版本说明"),
         ("courses/", "about", "课程与教学服务"),
+        ("method/", "method", "一体多面方法论"),
+        ("notes/", "method", "邝楚嘉按语索引"),
         ("contact/", "about", "联系与勘误"),
     ):
         pages.append({

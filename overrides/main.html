@@ -91,6 +91,58 @@
   },
   "description": {{ desc | tojson }}
 }
+{% elif page.url == 'method/' %}
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "DefinedTerm",
+      "@id": {{ (page_url ~ "#yiti-duomian") | tojson }},
+      "name": "一体多面",
+      "description": {{ page.meta.definition | tojson }},
+      "url": {{ page_url | tojson }},
+      "inDefinedTermSet": {
+        "@type": "DefinedTermSet",
+        "name": "四柱八字基础教材",
+        "url": {{ config.site_url | tojson }}
+      }
+    },
+    {
+      "@type": "WebPage",
+      "@id": {{ page_url | tojson }},
+      "name": {{ page.title | tojson }},
+      "url": {{ page_url | tojson }},
+      "inLanguage": "zh-CN",
+      "isAccessibleForFree": true,
+      "author": {"@id": {{ person_id | tojson }}},
+      "isPartOf": {"@id": {{ (config.site_url ~ "#website") | tojson }}},
+      "mainEntity": {"@id": {{ (page_url ~ "#yiti-duomian") | tojson }}},
+      "description": {{ desc | tojson }}
+    }
+  ]
+}
+{% elif page.url == 'notes/' %}
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": {{ page_url | tojson }},
+  "name": {{ page.title | tojson }},
+  "url": {{ page_url | tojson }},
+  "inLanguage": "zh-CN",
+  "isAccessibleForFree": true,
+  "author": {"@id": {{ person_id | tojson }}},
+  "isPartOf": {"@id": {{ (config.site_url ~ "#website") | tojson }}},
+  "about": {"@id": {{ book_id | tojson }}},
+  "mainEntity": {
+    "@type": "ItemList",
+    "numberOfItems": {{ page.meta.notes_items | length }},
+    "itemListElement": [
+      {% for it in page.meta.notes_items %}{"@type": "ListItem", "position": {{ it.position }}, "name": {{ ("第%d课 · %s" % (it.lessonNo, it.name)) | tojson }}, "url": {{ it.url | tojson }}}{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ]
+  },
+  "description": {{ desc | tojson }}
+}
 {% elif page.url.startswith('textbook/') %}
 {
   "@context": "https://schema.org",
@@ -107,7 +159,9 @@
   {% if page.meta.section %}"articleSection": {{ page.meta.section | tojson }},
   {% endif %}{% if page.meta.word_count %}"wordCount": {{ page.meta.word_count }},
   {% endif %}{% if page.meta.keywords %}"keywords": {{ page.meta.keywords | tojson }},
-  "about": {"@type": "Thing", "name": "四柱八字"},
+  {% endif %}{% if page.meta.main_site and page.meta.main_site.terms %}"about": [
+    {% for t in page.meta.main_site.terms %}{"@type": "DefinedTerm", "name": {{ t.name | tojson }}, "url": {{ t.url | tojson }}}{% if not loop.last %}, {% endif %}
+    {% endfor %}],
   {% endif %}"description": {{ desc | tojson }}
 }
 {% else %}
@@ -151,7 +205,7 @@
   {% endif %}
   {% if page %}
   <footer style="margin-top:2.4rem;padding-top:.9rem;border-top:1px solid var(--md-default-fg-color--lightest);font-size:.78rem;line-height:1.9;color:var(--md-default-fg-color--light)">
-    <p style="margin:0 0 .3rem">《四柱八字基础教材》{{ config.extra.book_version }}　·　作者：<a href="{{ 'author/' | url }}">嘉言一得（邝楚嘉）</a>{% if page.url.startswith('textbook/') %}　·　正文原文，未删改{% endif %}{% if page.meta.revised %}　·　本页最后修订 {{ page.meta.revised }}{% endif %}　·　<a href="{{ 'contact/' | url }}">联系与勘误</a></p>
+    <p style="margin:0 0 .3rem">《四柱八字基础教材》{{ config.extra.book_version }}　·　作者：<a href="{{ 'author/' | url }}">嘉言一得（邝楚嘉）</a>{% if page.url.startswith('textbook/') %}　·　正文原文，未删改{% endif %}{% if page.meta.revised %}　·　本页最后修订 {{ page.meta.revised }}{% endif %}　·　<a href="{{ 'method/' | url }}">方法论</a>　·　<a href="{{ 'notes/' | url }}">按语</a>　·　<a href="{{ 'contact/' | url }}">联系与勘误</a></p>
     <p style="margin:0">另见：<a href="https://jiayanyide.com/" rel="noopener">术数网 jiayanyide.com</a>（四柱八字的教材、术语词典与专题研究）　·　<a href="https://kuangchujia.com/" rel="noopener">中国历法与历史天文 kuangchujia.com</a>（节气、岁首与二十八宿的考据与数据）　·　<a href="https://chaoshanwiki.com/" rel="noopener">潮俗网 chaoshanwiki.com</a>（潮汕民俗数字知识库）</p>
   </footer>
   {% endif %}

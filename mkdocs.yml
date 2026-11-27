@@ -38,6 +38,11 @@ markdown_extensions:
   - toc:
       toc_depth: 3
       permalink: false
+# 方法与按语两页不进主导航（导航保持八项），入口放在首页与页脚。
+not_in_nav: |
+  method.md
+  notes.md
+
 nav:
   - 首页: index.md
   - 教材正文:
