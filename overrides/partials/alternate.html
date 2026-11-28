@@ -1,0 +1,35 @@
+{#-
+  教材站语言入口覆盖模板。
+  基于 Material for MkDocs 9.8.2 原版 partials/alternate.html，仅做一处改动：
+  在语言触发按钮的翻译图标后追加当前语言名的可见文本（span.lang-switch__name）。
+  菜单结构、链接地址、href、hreflang、锚文本全部照录原版，未作改动。
+  当前语言名取自 page.meta.lang（缺省 zh），按 config.extra.alternate 的 lang 精确匹配；
+  五语页 frontmatter 的 lang 值与 alternate.lang 一致（zh/en/zh-hant/ja/ko）。
+-#}
+{% set current_locale = page.meta.lang if (page and page.meta and page.meta.lang) else "zh" %}
+{% set label = namespace(value=current_locale) %}
+{% for alt in config.extra.alternate %}
+  {% if alt.lang == current_locale %}
+    {% set label.value = alt.name %}
+  {% endif %}
+{% endfor %}
+<div class="md-header__option">
+  <div class="md-select">
+    {% set icon = config.theme.icon.alternate or "material/translate" %}
+    <button class="md-header__button md-icon lang-switch" aria-label="{{ lang.t('select.language') }}">
+      {% include ".icons/" ~ icon ~ ".svg" %}
+      <span class="lang-switch__name">{{ label.value }}</span>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        {% for alt in config.extra.alternate %}
+          <li class="md-select__item">
+            <a href="{{ alt.link | url }}" hreflang="{{ alt.lang }}" class="md-select__link">
+              {{ alt.name }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>

@@ -151,3 +151,26 @@
   margin: 1.4em auto .6em;
   border-radius: .2rem;
 }
+
+/* ── 六、语言入口可见文字 ─────────────────────────────────────── */
+
+/* 页头右上角语言按钮原为单个翻译图标，不易发现。图标旁补当前语言名，
+ * 让入口一眼可见；图标本身保留，菜单交互（hover/focus 展开）不动。 */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.lang-switch__name {
+  margin-left: .3rem;
+  font-size: .75rem;
+  line-height: 1;
+}
+
+/* 窄屏页头空间紧，收起文字、只留图标，避免挤掉标题与搜索。 */
+@media screen and (max-width: 60em) {
+  .lang-switch__name {
+    display: none;
+  }
+}
