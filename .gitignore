@@ -2,3 +2,4 @@ site/
 __pycache__/
 *.pyc
 _build_test/
+_i18n_work/

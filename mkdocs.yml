@@ -76,9 +76,69 @@ nav:
   - 版权与版本说明: rights.md
   - 课程与教学服务: courses.md
 
+# 五语化：简中保留既有根路径，四语以子路径并存。译文正文由 scripts/make_i18n_pages.py
+# 从主站已发布页生成后缀文件 Lxx.<lang>.md；简中原文受 SHA256 冻结，不动一字。
+plugins:
+  - i18n:
+      docs_structure: suffix
+      reconfigure_material: true
+      languages:
+        - locale: zh
+          name: 简体中文
+          default: true
+        - locale: zh-hant
+          name: 繁體中文
+          site_name: 四柱八字基礎教材
+          nav_translations:
+            首页: 首頁
+            教材正文: 教材正文
+            练习: 練習
+            附录数据: 附錄數據
+            关于嘉言一得: 關於嘉言一得
+            联系与勘误: 聯繫與勘誤
+            版权与版本说明: 版權與版本說明
+            课程与教学服务: 課程與教學服務
+        - locale: en
+          name: English
+          site_name: Four Pillars BaZi Foundation Course
+          nav_translations:
+            首页: Home
+            教材正文: Course
+            练习: Exercises
+            附录数据: Appendix data
+            关于嘉言一得: About Jiayanyide
+            联系与勘误: Contact and errata
+            版权与版本说明: Rights and versions
+            课程与教学服务: Courses
+        - locale: ja
+          name: 日本語
+          site_name: 四柱八字基礎教材
+          nav_translations:
+            首页: ホーム
+            教材正文: 教材本文
+            练习: 練習
+            附录数据: 付録データ
+            关于嘉言一得: 嘉言一得について
+            联系与勘误: 連絡と勘誤
+            版权与版本说明: 権利とバージョン
+            课程与教学服务: 課程と教授
+        - locale: ko
+          name: 한국어
+          site_name: 사주팔자 기초 교재
+          nav_translations:
+            首页: 홈
+            教材正文: 교재 본문
+            练习: 연습
+            附录数据: 부록 데이터
+            关于嘉言一得: 가언일득 소개
+            联系与勘误: 연락 및 정오
+            版权与版本说明: 저작권과 버전
+            课程与教学服务: 과정과 교수
+
 # 构建期注入逐页 description，避免改写受 SHA256 冻结的正文文件。
 hooks:
   - hooks/page_meta.py
+  - hooks/link_rel.py
 
 extra:
   # 访问统计：填入其一即启用，两者均留空则不加载任何统计脚本。
